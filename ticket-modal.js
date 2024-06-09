@@ -3,6 +3,7 @@ const { ModalBuilder, TextInputBuilder, TextInputStyle, ActionRowBuilder } = req
 module.exports = {
     data: {
         name: 'ticket-modal',
+        description: 'Destek talebi için modal pencere',
     },
     async execute(interaction) {
         const modal = new ModalBuilder()

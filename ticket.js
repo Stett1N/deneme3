@@ -8,7 +8,7 @@ module.exports = {
         const embed = new EmbedBuilder()
             .setColor('Random')
             .setTitle('Destek Talebi')
-            .setDescription('**Destek talebi hakkında bilgi**\n・Destek talebi oluşturmak için aşağıdaki butona tıklayın.\n・Yetkililerimiz en kısa sürede yanıt vereceklerdir.\n\n**Destek Kuralları**\n・Troll, alakasız, saçma talepler ceza almanıza neden olur.\n・Ticket içerisinde saygılı olunuz ve yetkilileri etiketlemeyin!\n・Burası selamlaşma yeri değildir! Selam, Kimse var mı gibi şeyler yazmak yerine direk sorununuzu belirtiniz..\nFoxt Scp',);
+            .setDescription('**Destek talebi hakkında bilgi**\n・Destek talebi oluşturmak için aşağıdaki butona tıklayın.\n・Yetkililerimiz en kısa sürede yanıt vereceklerdir.\n\n**Destek Kuralları**\n・Troll, alakasız, saçma talepler ceza almanıza neden olur.\n・Ticket içerisinde saygılı olunuz ve yetkilileri etiketlemeyin!\n・Burası selamlaşma yeri değildir! Selam, Kimse var mı gibi şeyler yazmak yerine direk sorununuzu belirtiniz..\nFoxt Scp');
 
         const options = [
             {

@@ -47,16 +47,16 @@ const commandFiles = readdirSync('./src/commands').filter(file => file.endsWith(
 
 for (const file of commandFiles) {
     const command = require(`./src/commands/${file}`);
-    commands.push(command.data); // Burayı değiştirdik
+    commands.push(command.data);
     client.commands.set(command.data.name, command);
 }
 
-
 client.on("ready", async () => {
     try {
+        const validCommands = commands.filter(cmd => cmd.name && cmd.description);
         await rest.put(
             Routes.applicationCommands(client.user.id),
-            { body: commands }
+            { body: validCommands }
         );
     } catch (error) {
         console.error(error);
@@ -83,11 +83,19 @@ client.on('interactionCreate', async interaction => {
     if (!command) return;
 
     try {
+        if (interaction.isRepliable()) {
+            await interaction.deferReply();
+        } else {
+            await interaction.deferUpdate();
+        }
         await command.run(client, interaction);
     } catch (error) {
         console.error(error);
-        if (interaction.deferred || interaction.replied) return;
-        await interaction.reply({ content: 'Bir hata oluştu!', ephemeral: true });
+        if (interaction.replied || interaction.deferred) {
+            await interaction.followUp({ content: 'Bir hata oluştu!', ephemeral: true });
+        } else {
+            await interaction.reply({ content: 'Bir hata oluştu!', ephemeral: true });
+        }
     }
 });
 

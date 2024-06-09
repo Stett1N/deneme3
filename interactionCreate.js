@@ -1,37 +1,47 @@
-const { EmbedBuilder, InteractionType } = require("discord.js");
-const { readdirSync } = require("fs");
-const { owner } = require("../../config.js");
-const commandFiles = readdirSync('./src/commands').filter(file => file.endsWith('.js'));
+const { ChannelType, PermissionFlagsBits, EmbedBuilder } = require('discord.js');
 
 module.exports = {
     name: 'interactionCreate',
-    execute: async (interaction, client) => {
-        if (interaction.isChatInputCommand()) {
-            const command = client.commands.get(interaction.commandName);
-            if (!command) return;
+    async execute(interaction, client) {
+        if (!interaction.isStringSelectMenu()) return;
 
-            try {
-                await command.run(client, interaction);
-            } catch (error) {
-                console.error(error);
-                if (interaction.replied || interaction.deferred) return;
-                await interaction.reply({ content: 'Bir hata oluştu!', ephemeral: true });
-            }
-        } else if (interaction.isModalSubmit()) {
-            if (interaction.customId === 'ticketModal') {
-                const selectedOption = interaction.fields.getComponent('select').values[0];
-                const reason = interaction.fields.getComponent('reasonInput').value;
-
-                // Burada seçilen seçenek ve girilen açıklama ile gerekli işlemler yapılabilir
-                console.log(`Seçilen Seçenek: ${selectedOption}, Açıklama: ${reason}`);
-
-                await interaction.reply({ content: 'Ticket talebi alındı!', ephemeral: true });
-            } else {
-                return;
-            }
-        } else {
-            // Diğer etkileşim türleri için işlem yapılmayacak
-            return;
+        if (interaction.customId === 'ticket-menu') {
+            const selectedOption = interaction.values[0];
+            const modal = require('../commands/ticket-modal');
+            await modal.execute(interaction);
         }
-    }
-}
+
+        if (interaction.isModalSubmit()) {
+            if (interaction.customId === 'ticket-modal') {
+                const userId64 = interaction.fields.getTextInputValue('userId64');
+                const complaint = interaction.fields.getTextInputValue('complaint');
+
+                const channel = await interaction.guild.channels.create({
+                    name: `destek-${selectedOption}`,
+                    type: ChannelType.GuildText,
+                    permissionOverwrites: [
+                        {
+                            id: interaction.guild.roles.everyone,
+                            deny: [PermissionFlagsBits.ViewChannel],
+                        },
+                        {
+                            id: interaction.user.id,
+                            allow: [PermissionFlagsBits.ViewChannel],
+                        },
+                    ],
+                });
+
+                const embed = new EmbedBuilder()
+                    .setColor('Random')
+                    .setTitle(`Destek Talebi: ${selectedOption}`)
+                    .addFields(
+                        { name: '64 ID', value: userId64 },
+                        { name: 'Şikayet', value: complaint }
+                    );
+
+                await channel.send({ embeds: [embed] });
+                await interaction.reply({ content: `Destek talebi oluşturuldu: ${channel}`, ephemeral: true });
+            }
+        }
+    },
+};
